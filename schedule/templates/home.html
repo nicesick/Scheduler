@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    {% load static %}
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+    <!-- TOAST UI SAMPLE CSS -->
+    <link rel="stylesheet" href="{% static 'css/default.css' %}">
+    <link rel="stylesheet" href="{% static 'css/icons.css' %}">
+
+    <!-- TOAST UI CSS -->
+    <link rel="stylesheet" type="text/css" href="https://uicdn.toast.com/tui-calendar/latest/tui-calendar.css" />
+
+    <!-- If you use the default popups, use this. -->
+    <link rel="stylesheet" type="text/css" href="https://uicdn.toast.com/tui.date-picker/latest/tui-date-picker.css" />
+    <link rel="stylesheet" type="text/css" href="https://uicdn.toast.com/tui.time-picker/latest/tui-time-picker.css" />
+
+    <!-- FONT AWESOME JS -->
+    <script src="https://kit.fontawesome.com/01a8fe7808.js" crossorigin="anonymous"></script>
+
+    <title>Piaaano</title>
+</head>
+<body>
+    <div class="container bg-info shadow-lg rounded-lg m-auto">
+        <div class="row align-items-center pt-3">
+            <div class="col-sm-5 col-md-2">
+                <img class="img-fluid" src="{% static 'images/logo.png' %}" alt="logo">
+            </div>
+            <div class="col-sm-7 col-md-10 text-center">
+                <h2 class="font-weight-bold text-success img-thumbnail shadow">Piaaano - Scheduler</h2>
+            </div>
+        </div>
+        <div class="row align-items-center">
+            <div class="col-sm-12 col-md-4 text-center">
+                <div id="menu">
+                    <span id="menu-navi">
+                        <button type="button" class="btn btn-dark btn-sm move-today" data-action="move-today">
+                            <span class="text-info">Today</span>
+                        </button>
+                        <button type="button" class="btn btn-dark btn-sm move-day" data-action="move-prev">
+                            <i class="calendar-icon ic-arrow-line-left" data-action="move-prev"></i>
+                        </button>                        
+                        <button type="button" class="btn btn-dark btn-sm move-day" data-action="move-next">
+                            <i class="calendar-icon ic-arrow-line-right" data-action="move-next"></i>
+                        </button>
+                        <span id="renderRange" class="render-range"></span>
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-8 text-center">
+                <div class="dropdown">
+                    <button class="btn btn-dark btn-block dropdown-toggle" id="pianoSelectButton" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span id="room-num" class="font-weight-bold text-info">PIAAANO 선택</span>
+                    </button>
+                    <div class="dropdown-menu w-100 bg-dark" aria-labelledby="pianoSelectButton">
+                        {% for piano in pianos %}
+                            <button class="dropdown-item room-button text-info" value="{{piano.name}}">piano #{{piano.name}}</button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row pt-3 pb-3">
+            <div class="col">
+                <div id="calendar"></div>
+            </div>
+        </div>
+
+        <div class="row fixed-bottom justify-content-end p-3">
+            <div class="col-sm-10 col-md-10">
+                <div id="responseAlert" class="alert alert-warning d-none" role="alert"></div>
+            </div>
+            <div class="col-sm-2 col-md-2">
+                <!-- Button trigger modal -->
+                <button id="modal-button" type="button" class="btn btn-secondary btn-lg btn-block" data-toggle="modal" data-target="#writeScheduleModal">
+                    <i class="fas fa-pen"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="writeScheduleModal" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="writeScheduleModalLabel">일정등록</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form id="writeSchedule">
+                        <div class="modal-body">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-sm-2 col-md-4">
+                                        <label class="font-weight-bold" for="scheduleName">성명</label>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <input class="form-control" id="scheduleName" type="text" placeholder="성명" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-2 col-md-4">
+                                        <label class="font-weight-bold" for="scheduleDate">날짜</label>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <input class="form-control" id="scheduleDate" type="text" placeholder="날짜" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-2 col-md-4">
+                                        <label class="font-weight-bold" for="schedulePlace">장소</label>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <input class="form-control" id="schedulePlace" type="text" placeholder="장소" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-2 col-md-4">
+                                        <label class="font-weight-bold">예약시간</label>
+                                    </div>
+                                    <div class="col">
+                                        <div id="startTime"></div>
+                                        <hr>
+                                        <div id="endTime"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary rounded">일정등록</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="removeScheduleModal" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="removeScheduleModalLabel">삭제확인</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form id="removeSchedule">
+                        <div class="modal-body">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col">
+                                        <span id="scheduleRemoveName" class="text-primary"></span> 일정을 정말로 삭제하시겠습니까?
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary rounded" data-dismiss="modal" aria-label="Close">취소</button>
+                            <button type="submit" class="btn btn-secondary rounded">삭제</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JQUERY -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+
+    <!-- TOAST UI JS -->
+    <script src="https://uicdn.toast.com/tui.code-snippet/v1.5.2/tui-code-snippet.min.js"></script>
+    <script src="https://uicdn.toast.com/tui.time-picker/latest/tui-time-picker.min.js"></script>
+    <script src="https://uicdn.toast.com/tui.date-picker/latest/tui-date-picker.min.js"></script>
+    <script src="https://uicdn.toast.com/tui-calendar/latest/tui-calendar.js"></script>
+
+    <!-- 사용자 정의 JS -->
+    <script src="{% static 'js/stringUtils.js' %}"></script>
+    <script src="{% static 'js/dateUtils.js' %}"></script>
+    <script src="{% static 'js/initCalendars.js' %}"></script>
+    <script src="{% static 'js/controlSchedules.js' %}"></script>
+
+    <script>
+        var userId = '{{request.user.id}}';
+
+        /**
+         * 캘린더 정의 및 초기화 영역
+         */
+        $(document).ready(function(){
+            /**
+             * calendar 이벤트 영역
+             *
+             * beforeCreateSchedule
+             * beforeUpdateSchedule
+             * beforeDeleteSchedule
+             */
+            calendar.on('beforeCreateSchedule', function(event) {
+                setWriteModal(false, true, event.start, event.end);
+                $('#writeScheduleModal').modal('show');
+            });
+
+            calendar.on('beforeUpdateSchedule', function(event) {
+                var targetStart = '';
+                var targetEnd = '';
+
+                if (event.changes == undefined) {
+                    targetStart = event.schedule.start;
+                    targetEnd = event.schedule.end;
+                } else {
+                    if (event.changes.start == undefined) {
+                        targetStart = event.schedule.start;
+                    } else {
+                        targetStart = event.changes.start;
+                    }
+
+                    if (event.changes.end == undefined) {
+                        targetEnd = event.schedule.end;
+                    } else {
+                        targetEnd = event.changes.end;
+                    }
+                }
+
+                setWriteModal(true, true, targetStart, targetEnd, event.schedule.id);
+                $('#writeScheduleModal').modal('show');
+            });
+
+            calendar.on('beforeDeleteSchedule', function(event) {
+                setRemoveModal(event.schedule);
+                $('#removeScheduleModal').modal('show');
+            });
+
+            select($, 1, new Date());
+        });
+
+        /**
+         * modal 영역
+         * 
+         * setWriteModal
+         * setRemoveModal
+         */
+        function setWriteModal(isUpdate, hasTime, targetStart = undefined, targetEnd = undefined, scheduleId = undefined) {
+            $('#scheduleName').val('{{request.user.username}}');
+            $('#scheduleDate').val(formatStr(curDate));
+            $('#schedulePlace').val(curRoom);
+            
+            if (hasTime) {
+                startTime.setTime(targetStart.getHours(), targetStart.getMinutes());
+                endTime.setTime(targetEnd.getHours(), targetEnd.getMinutes());
+            }
+
+            if (isUpdate) {
+                $('#writeSchedule').data('command', 'update');
+                $('#writeSchedule').data('scheduleId', scheduleId);
+            } else {
+                $('#writeSchedule').data('command', 'create');
+            }
+        }
+
+        function setRemoveModal(schedule) {
+            $('#removeSchedule').data('scheduleId', schedule.id);
+            $('#scheduleRemoveName').text(schedule.location + ' ' + 
+                                    formatStrTime(convertToStrTime(schedule.start.getHours(), schedule.start.getMinutes())) + ' ~ ' + 
+                                    formatStrTime(convertToStrTime(schedule.end.getHours(), schedule.end.getMinutes())) + ' ');
+        }
+
+        /**
+         * 버튼 이벤트 영역
+         *
+         * room-button
+         * move-day
+         * move-today
+         * writeSchedule:submit
+         * removeSchedule:submit
+         */
+        $('.room-button').click(function(){
+            select($, this.value, convertToDate(curDate));
+        });
+
+        $('.move-day').click(function(){
+            var action = $(this).data('action');
+            var convertedDate = convertToDate(curDate);
+
+            if (action == 'move-next') {
+                convertedDate.setDate(convertedDate.getDate() + 1);
+
+                select($, curRoom, convertedDate);
+            } else if (action == 'move-prev') {
+                convertedDate.setDate(convertedDate.getDate() - 1)
+
+                select($, curRoom, convertedDate);
+            }
+        });
+
+        $('.move-today').click(function(){
+            select($, curRoom, new Date());
+        });
+
+        $('#writeSchedule').submit(function(event){
+            event.preventDefault();
+
+            var command = $('#writeSchedule').data('command');
+            var targetStart = convertToStrTime(startTime.getHour(), startTime.getMinute());
+            var targetEnd = convertToStrTime(endTime.getHour(), endTime.getMinute());
+
+            var scheduleId = $('#writeSchedule').data('scheduleId');
+
+            insert($, '{{csrf_token}}', curRoom, curDate, command, targetStart, targetEnd, scheduleId);
+        });
+
+        $('#removeSchedule').submit(function(event){
+            event.preventDefault();
+
+            var scheduleId = $('#removeSchedule').data('scheduleId');
+            remove($, '{{csrf_token}}', curRoom, curDate, scheduleId);
+        });
+    </script>
+</body>
+</html>
