@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.forms.models import model_to_dict
 from django.http.response import HttpResponse
 import json
@@ -9,6 +9,9 @@ from .schedule import *
 # Create your views here.
 
 def home(request):
+    if not request.user.is_authenticated:
+        return redirect('account:signin')
+
     pianos = PianoRoom.objects.all()
 
     if pianos.exists() == False:
