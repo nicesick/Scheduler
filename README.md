@@ -14,6 +14,11 @@ This Project is for making Scheduler using django framework
 ## How to Execute
 
 * In local environment
+  * Before execute, you have to migration using Django command
+  ```powershell
+  > python manage.py makemigration
+  > python manage.py migrate
+  ```
 
   * using Django command, you can run server
 
