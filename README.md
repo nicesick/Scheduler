@@ -1,4 +1,4 @@
-# Scheduler
+# ToastUI_Today_Scheduler
 This Project is for making Scheduler using django framework
 
 
